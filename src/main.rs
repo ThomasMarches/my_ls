@@ -5,20 +5,21 @@ use std::{
 
 mod tool;
 
-struct FolderResult {
+pub struct FolderResult {
     file_number: i32,
     code_file_number: i32,
     comment_lines: i32,
     lines: i32,
     code_lines: i32,
+    empty_lines: i32,
 }
 
 impl Debug for FolderResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
-            "1 - Files: {},\n2 - Code files: {},\n3 - Lines: {},\n4 - Code lines: {},\n4 - Comment lines: {}\n",
-            self.file_number, self.code_file_number, self.lines, self.code_lines, self.comment_lines,
+            "1 - Files: {},\n2 - Code files: {},\n3 - Lines: {},\n4 - Code lines: {},\n5 - Comment lines: {},\n6 - Blank lines: {}",
+            self.file_number, self.code_file_number, self.lines, self.code_lines, self.comment_lines, self.empty_lines,
         )
     }
 }
@@ -29,16 +30,12 @@ fn count_number_of_lines_and_folders(paths: &Vec<String>, result: &mut FolderRes
         if file.is_err() {
             continue;
         }
-
         let unwraped_file = file.unwrap();
         let lines = unwraped_file.lines();
-        result.lines += lines.clone().count() as i32;
+        result.lines += lines.to_owned().count() as i32;
+        result.file_number += 1;
 
-        if tool::is_file_a_coding_file(path) {
-            result.code_file_number += 1;
-            result.code_lines += tool::get_code_lines_number(&lines);
-            result.comment_lines += tool::get_comment_lines_number(&lines);
-        }
+        tool::process_file(path, &lines, result);
     }
 }
 
@@ -55,6 +52,7 @@ fn main() {
         code_file_number: 0,
         comment_lines: 0,
         code_lines: 0,
+        empty_lines: 0,
         lines: 0,
     };
 

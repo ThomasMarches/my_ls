@@ -1,6 +1,8 @@
 use std::{fs, str::Lines};
 
-pub fn is_file_a_coding_file(file_name: &str) -> bool {
+use crate::FolderResult;
+
+fn is_file_a_coding_file(file_name: &str) -> bool {
     let file_extension = file_name.split(".").last().unwrap();
     if file_extension == "rs"
         || file_extension == "c"
@@ -18,6 +20,7 @@ pub fn is_file_a_coding_file(file_name: &str) -> bool {
         || file_extension == "css"
         || file_extension == "dart"
         || file_extension == "jsx"
+        || file_extension == "json"
     {
         return true;
     }
@@ -35,34 +38,32 @@ pub fn get_files_names(folder: &str) -> Vec<String> {
         if tmp.is_dir() {
             result.append(&mut get_files_names(&string.unwrap()));
         } else {
-            result.push(string.unwrap().replace("./", ""));
+            let changed_string = string.unwrap().replace("./", "");
+            if changed_string.starts_with(".") {
+                continue;
+            }
+            result.push(changed_string);
         }
     }
     result
 }
 
-pub fn get_code_lines_number(lines: &Lines) -> i32 {
-    let mut counter = 0;
+pub fn process_file(path: &str, lines: &Lines, result: &mut FolderResult) {
+    result.code_file_number += 1;
+    let coding_file = is_file_a_coding_file(path);
 
     lines.to_owned().for_each(|line| {
-        if line.contains("fn") {
-            counter += 1;
-        }
-    });
-    return counter;
-}
-
-pub fn get_comment_lines_number(lines: &Lines) -> i32 {
-    let mut counter = 0;
-
-    lines.to_owned().for_each(|line| {
-        let final_line = line.replace(" ", "");
-        if final_line.starts_with("//")
+        let final_line = line.replace("\t", "");
+        if line == "" {
+            result.empty_lines += 1;
+        } else if final_line.starts_with("//")
             || final_line.starts_with("/*")
             || final_line.starts_with("#")
         {
-            counter += 1;
+            result.comment_lines += 1;
+        }
+        if coding_file {
+            result.code_lines += 1;
         }
     });
-    return counter;
 }
