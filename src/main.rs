@@ -78,6 +78,13 @@ fn count_number_of_lines_and_folders(paths: &Vec<String>, result: &mut FolderRes
 }
 
 fn main() {
+    let pattern = std::env::args().nth(1);
+
+    if pattern.is_none() || pattern == Some(String::from("-h")) {
+        println!("{}", fs::read_to_string("help.txt").unwrap());
+        return;
+    }
+
     let mut result = FolderResult {
         file_number: 0,
         code_file_number: 0,
@@ -85,7 +92,7 @@ fn main() {
         lines: 0,
     };
 
-    let paths = get_files_names(".");
+    let paths = get_files_names(&pattern.unwrap());
     result.file_number = paths.len() as i32;
     count_number_of_lines_and_folders(&paths, &mut result);
     println!("{:?}", result);

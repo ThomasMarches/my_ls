@@ -1,0 +1,3 @@
+- HELP -
+    ./counter -h to show HELP tab
+    ./counter folder_name to show every informations about a specific folder
