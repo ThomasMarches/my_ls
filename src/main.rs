@@ -24,27 +24,46 @@ impl Debug for FolderResult {
     }
 }
 
-fn count_number_of_lines_and_folders(paths: &Vec<String>, result: &mut FolderResult) {
+fn process_folders(paths: &Vec<String>, result: &mut FolderResult) {
     for path in paths {
-        let file = fs::read_to_string(path);
-        if file.is_err() {
-            continue;
-        }
-        let unwraped_file = file.unwrap();
-        let lines = unwraped_file.lines();
+        let buffer = match fs::read_to_string(path) {
+            Ok(buffer) => buffer,
+            Err(_) => continue,
+        };
+        let lines = buffer.lines();
         result.lines += lines.to_owned().count() as i32;
         result.file_number += 1;
         tool::process_file(path, &lines, result);
     }
 }
 
-fn main() {
-    let pattern = std::env::args().nth(1);
+fn show_usage() {
+    let help_text = match fs::read_to_string("help.txt") {
+        Ok(it) => it,
+        Err(err) => {
+            return eprintln!(
+                "[Error handler]: {}.\nPlease check that help.txt file exists.",
+                err
+            )
+        }
+    };
+    println!("{}", help_text);
+}
 
-    if pattern.is_none() || pattern == Some(String::from("-h")) {
-        println!("{}", fs::read_to_string("help.txt").unwrap());
-        return;
-    }
+fn main() {
+    let arg = match std::env::args().nth(1) {
+        Some(arg) => {
+            if arg == "-h" || arg == "--help" {
+                show_usage();
+                return;
+            }
+            arg
+        }
+        None => {
+            show_usage();
+            return;
+        }
+    };
 
     let mut result = FolderResult {
         file_number: 0,
@@ -55,7 +74,7 @@ fn main() {
         lines: 0,
     };
 
-    let paths = tool::get_files_names(&pattern.unwrap());
-    count_number_of_lines_and_folders(&paths, &mut result);
+    let paths = tool::get_files_names(&arg);
+    process_folders(&paths, &mut result);
     println!("{:?}", result);
 }

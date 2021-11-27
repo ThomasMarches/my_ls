@@ -3,50 +3,74 @@ use std::{fs, str::Lines};
 use crate::FolderResult;
 
 fn is_file_a_coding_file(file_name: &str) -> bool {
-    let file_extension = file_name.split(".").last().unwrap();
-    return file_extension == "rs"
-        || file_extension == "c"
-        || file_extension == "js"
-        || file_extension == "cpp"
-        || file_extension == "hs"
-        || file_extension == "java"
-        || file_extension == "asm"
-        || file_extension == "py"
-        || file_extension == "cxx"
-        || file_extension == "h"
-        || file_extension == "hpp"
-        || file_extension == "hxx"
-        || file_extension == "html"
-        || file_extension == "css"
-        || file_extension == "dart"
-        || file_extension == "jsx"
-        || file_extension == "json";
+    match file_name.split(".").last() {
+        Some(extension) => {
+            return extension == "rs"
+                || extension == "c"
+                || extension == "js"
+                || extension == "cpp"
+                || extension == "hs"
+                || extension == "java"
+                || extension == "asm"
+                || extension == "py"
+                || extension == "cxx"
+                || extension == "h"
+                || extension == "hpp"
+                || extension == "hxx"
+                || extension == "html"
+                || extension == "css"
+                || extension == "dart"
+                || extension == "jsx"
+                || extension == "json"
+        }
+        None => return false,
+    }
 }
 
 pub fn get_files_names(folder: &str) -> Vec<String> {
     let mut result: Vec<String> = Vec::new();
-    let paths = fs::read_dir(folder).unwrap();
+    let paths = match fs::read_dir(folder) {
+        Ok(paths) => paths,
+        Err(err) => {
+            eprintln!("[Error handler]: {}.", err);
+            return result;
+        }
+    };
 
     for path in paths {
-        let tmp = path.unwrap().path();
-        let str = tmp.to_str();
-        let string = str.map(|s| s.to_string());
-        if tmp.is_dir() {
-            result.append(&mut get_files_names(&string.unwrap()));
-        } else {
-            let changed_string = string.unwrap().replace("./", "");
-            if changed_string.starts_with(".") {
+        match path {
+            Ok(path) => {
+                let filepath = path.path();
+                let str = filepath.to_str();
+                let string = match str.map(|s| s.to_string()) {
+                    Some(string) => string,
+                    None => continue,
+                };
+                if filepath.is_dir() {
+                    result.append(&mut get_files_names(&string));
+                } else {
+                    let changed_string = string.replace("./", "");
+                    if changed_string.starts_with(".") {
+                        continue;
+                    }
+                    result.push(changed_string);
+                }
+            }
+            Err(err) => {
+                eprintln!("[Error handler]: {}.", err);
                 continue;
             }
-            result.push(changed_string);
         }
     }
     result
 }
 
 pub fn process_file(path: &str, lines: &Lines, result: &mut FolderResult) {
-    result.code_file_number += 1;
     let coding_file = is_file_a_coding_file(path);
+
+    if coding_file {
+        result.code_file_number += 1;
+    }
 
     lines.to_owned().for_each(|line| {
         let final_line = line.replace(" ", "");
@@ -92,9 +116,14 @@ mod tests {
         };
 
         let path = "test_folder/test.rs";
-        let file = fs::read_to_string(path);
-        let unwraped_file = file.unwrap();
-        let lines = unwraped_file.lines();
+        let file = match fs::read_to_string(path) {
+            Ok(file) => file,
+            Err(err) => {
+                eprintln!("[Error handler]: {}.", err);
+                return;
+            }
+        };
+        let lines = file.lines();
 
         process_file(path, &lines, &mut result);
         assert_eq!(result.empty_lines, 1);
