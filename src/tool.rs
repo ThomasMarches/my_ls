@@ -81,7 +81,7 @@ mod tests {
     #[test]
     fn test_get_files_names() {
         let result = get_files_names("test_folder");
-        assert_eq!(result, vec!["test_folder/test.rs", "test_folder/test_file.txt"]);
+        assert_eq!(result, vec!["test_folder/test.rs"]);
     }
 
     #[test]
