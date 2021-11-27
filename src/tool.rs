@@ -4,7 +4,7 @@ use crate::FolderResult;
 
 fn is_file_a_coding_file(file_name: &str) -> bool {
     let file_extension = file_name.split(".").last().unwrap();
-    if file_extension == "rs"
+    return file_extension == "rs"
         || file_extension == "c"
         || file_extension == "js"
         || file_extension == "cpp"
@@ -20,11 +20,7 @@ fn is_file_a_coding_file(file_name: &str) -> bool {
         || file_extension == "css"
         || file_extension == "dart"
         || file_extension == "jsx"
-        || file_extension == "json"
-    {
-        return true;
-    }
-    return false;
+        || file_extension == "json";
 }
 
 pub fn get_files_names(folder: &str) -> Vec<String> {
