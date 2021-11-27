@@ -34,7 +34,6 @@ fn count_number_of_lines_and_folders(paths: &Vec<String>, result: &mut FolderRes
         let lines = unwraped_file.lines();
         result.lines += lines.to_owned().count() as i32;
         result.file_number += 1;
-
         tool::process_file(path, &lines, result);
     }
 }
@@ -57,7 +56,6 @@ fn main() {
     };
 
     let paths = tool::get_files_names(&pattern.unwrap());
-    result.file_number = paths.len() as i32;
     count_number_of_lines_and_folders(&paths, &mut result);
     println!("{:?}", result);
 }
