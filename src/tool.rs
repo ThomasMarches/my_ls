@@ -1,6 +1,6 @@
 use std::{fs, str::Lines};
 
-use crate::FolderResult;
+mod folder;
 
 fn is_file_a_coding_file(file_name: &str) -> bool {
     match file_name.split(".").last() {
@@ -25,6 +25,22 @@ fn is_file_a_coding_file(file_name: &str) -> bool {
         }
         None => return false,
     }
+}
+
+pub fn process_folders(paths: &Vec<String>) {
+    let mut result = folder::FolderResult::default();
+
+    for path in paths {
+        let buffer = match fs::read_to_string(path) {
+            Ok(buffer) => buffer,
+            Err(_) => continue,
+        };
+        let lines = buffer.lines();
+        result.increment_lines(lines.to_owned().count() as i32);
+        result.increment_file_number();
+        process_file(path, &lines, &mut result);
+    }
+    println!("{:?}", result);
 }
 
 pub fn get_files_names(folder: &str) -> Vec<String> {
@@ -65,31 +81,31 @@ pub fn get_files_names(folder: &str) -> Vec<String> {
     result
 }
 
-pub fn process_file(path: &str, lines: &Lines, result: &mut FolderResult) {
+pub fn process_file(path: &str, lines: &Lines, result: &mut folder::FolderResult) {
     let coding_file = is_file_a_coding_file(path);
 
     if coding_file {
-        result.code_file_number += 1;
+        result.increment_code_file_number();
     }
 
     lines.to_owned().for_each(|line| {
         let final_line = line.replace(" ", "");
         if line == "" {
             if coding_file {
-                result.code_lines -= 1;
+                result.decrement_code_lines();
             }
-            result.empty_lines += 1;
+            result.increment_empty_lines();
         } else if final_line.starts_with("//")
             || final_line.starts_with("/*")
             || final_line.starts_with("#")
         {
             if coding_file {
-                result.code_lines -= 1;
+                result.decrement_code_lines();
             }
-            result.comment_lines += 1;
+            result.increment_comment_lines();
         }
         if coding_file {
-            result.code_lines += 1;
+            result.increment_code_lines();
         }
     });
 }
@@ -106,14 +122,7 @@ mod tests {
 
     #[test]
     fn test_process_file() {
-        let mut result = FolderResult {
-            file_number: 0,
-            code_file_number: 0,
-            comment_lines: 0,
-            code_lines: 0,
-            empty_lines: 0,
-            lines: 0,
-        };
+        let mut result = folder::FolderResult::default();
 
         let path = "test_folder/test.rs";
         let file = match fs::read_to_string(path) {
@@ -126,9 +135,12 @@ mod tests {
         let lines = file.lines();
 
         process_file(path, &lines, &mut result);
-        assert_eq!(result.empty_lines, 1);
-        assert_eq!(result.comment_lines, 2);
-        assert_eq!(result.code_lines, 3);
+        assert_eq!(result.get_empty_lines(), 1);
+        assert_eq!(result.get_comment_lines(), 2);
+        assert_eq!(result.get_code_lines(), 3);
+        assert_eq!(result.get_file_number(), 0);
+        assert_eq!(result.get_code_file_number(), 1);
+        assert_eq!(result.get_lines(), 0);
     }
 
     #[test]
