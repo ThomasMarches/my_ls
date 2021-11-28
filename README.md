@@ -1,9 +1,9 @@
 # my_counter
-Rust folder lines counters with line count and code line count
+Folder lines, code lines, comment lines, file number, coding file number and empty line counter.
 
 ## Usage
 #
-    ./counter -h to show HELP tab
+    ./counter -h/--help to show help tab
     ./counter folder_name to show every informations about a specific folder
 
 ## Output
