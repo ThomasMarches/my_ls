@@ -27,18 +27,19 @@ fn is_file_a_coding_file(file_name: &str) -> bool {
     }
 }
 
-pub fn process_folders(folder_name: String, paths: &Vec<String>) {
+pub fn process_folders(folder_name: String) {
+    let paths = get_files_names(&folder_name);
     let mut result = folder::FolderResult::default();
 
     for path in paths {
-        let buffer = match fs::read_to_string(path) {
+        let buffer = match fs::read_to_string(path.clone()) {
             Ok(buffer) => buffer,
             Err(_) => continue,
         };
         let lines = buffer.lines();
         result.increment_lines(lines.to_owned().count() as i32);
         result.increment_file_number();
-        process_file(path, &lines, &mut result);
+        process_file(&path, &lines, &mut result);
     }
     println!("[my_counter]: Result for {}:\n{:?}", folder_name, result);
 }
