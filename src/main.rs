@@ -31,5 +31,5 @@ fn main() {
     };
 
     let paths = tool::get_files_names(&arg);
-    tool::process_folders(&paths);
+    tool::process_folders(arg, &paths);
 }

@@ -27,7 +27,7 @@ fn is_file_a_coding_file(file_name: &str) -> bool {
     }
 }
 
-pub fn process_folders(paths: &Vec<String>) {
+pub fn process_folders(folder_name: String, paths: &Vec<String>) {
     let mut result = folder::FolderResult::default();
 
     for path in paths {
@@ -40,7 +40,7 @@ pub fn process_folders(paths: &Vec<String>) {
         result.increment_file_number();
         process_file(path, &lines, &mut result);
     }
-    println!("{:?}", result);
+    println!("[my_counter]: Result for {}:\n{:?}", folder_name, result);
 }
 
 pub fn get_files_names(folder: &str) -> Vec<String> {
@@ -81,7 +81,7 @@ pub fn get_files_names(folder: &str) -> Vec<String> {
     result
 }
 
-pub fn process_file(path: &str, lines: &Lines, result: &mut folder::FolderResult) {
+fn process_file(path: &str, lines: &Lines, result: &mut folder::FolderResult) {
     let coding_file = is_file_a_coding_file(path);
 
     if coding_file {
