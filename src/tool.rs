@@ -1,3 +1,4 @@
+use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, str::Lines};
 
 mod folder;
@@ -29,9 +30,18 @@ fn is_file_a_coding_file(file_name: &str) -> bool {
 
 pub fn process_folders(folder_name: String) {
     let paths = get_files_names(&folder_name);
+    let progress_bar = ProgressBar::new(paths.len() as u64);
+    progress_bar.set_style(
+        ProgressStyle::default_bar()
+            .template(
+                "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {pos:>7}/{len:7}",
+            )
+            .progress_chars("#>-"),
+    );
     let mut result = folder::FolderResult::default();
 
     for path in paths {
+        progress_bar.inc(1);
         let buffer = match fs::read_to_string(path.clone()) {
             Ok(buffer) => buffer,
             Err(_) => continue,
@@ -41,6 +51,7 @@ pub fn process_folders(folder_name: String) {
         result.increment_file_number();
         process_file(&path, &lines, &mut result);
     }
+    progress_bar.finish();
     println!("[my_counter]: Result for {}:\n{:?}", folder_name, result);
 }
 

@@ -29,6 +29,5 @@ fn main() {
             return;
         }
     };
-
     tool::process_folders(arg);
 }
