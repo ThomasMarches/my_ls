@@ -16,6 +16,28 @@ fn show_usage() {
 }
 
 fn main() {
+    if std::env::args().len() == 3 {
+        let second_arg = match std::env::args().nth(2) {
+            Some(it) => it,
+            None => {
+                show_usage();
+                return;
+            }
+        };
+        let arg = match std::env::args().nth(1) {
+            Some(it) => it,
+            None => {
+                show_usage();
+                return;
+            }
+        };
+        if second_arg == "-R" {
+            tool::process_folders(&arg, true);
+        } else {
+            show_usage();
+        }
+    }
+
     let arg = match std::env::args().nth(1) {
         Some(arg) => {
             if arg == "-h" || arg == "--help" {
@@ -29,5 +51,5 @@ fn main() {
             return;
         }
     };
-    tool::process_folders(arg);
+    tool::process_folders(&arg, false);
 }
