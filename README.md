@@ -1,11 +1,7 @@
 # my_counter
-Folder lines, code lines, comment lines, file number, coding file number and empty line counter.
+ls CLI command copy made in rust.
 
-## Usage
-#
-    ./counter -h/--help to show help tab
-    ./counter folder_name to show every informations about a specific folder
-
-## Output
-#
-![Output](output.png)
+## Usage- HELP -
+    ./my_ls -h/--help to show help tab
+    ./my_ls folder_name to show files inside folder
+    ./my_ls folder_name -R to show files recursively inside folder and subfolders
