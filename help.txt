@@ -1,4 +1,5 @@
 - HELP -
-    ./my_ls -h/--help to show help tab
-    ./my_ls folder_name to show files inside folder
-    ./my_ls folder_name -R to show files recursively inside folder and subfolders
+    cargo run -h/--help to show help tab
+    cargo run . to show files inside actual folder
+    cargo run folder_name to show files inside a specific folder
+    cargo run folder_name -R to show files recursively inside folder and its subfolders
