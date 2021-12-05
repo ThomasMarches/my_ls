@@ -15,7 +15,7 @@ pub fn process_folders(folder_name: &str, recursive: bool) {
         let entry = match entry {
             Ok(e) => e,
             Err(e) => {
-                println!("{}", e);
+                println!("\n{}", e);
                 return;
             }
         };
